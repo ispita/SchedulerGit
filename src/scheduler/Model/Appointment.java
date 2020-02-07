@@ -67,7 +67,7 @@ public class Appointment {
         return appointmentTitle;
     }
     public StringProperty getAppointmentDescription(){
-        return appointmentTitle;
+        return appointmentDescription;
     }
     public StringProperty getAppointmentLocation(){
         return appointmentLocation;

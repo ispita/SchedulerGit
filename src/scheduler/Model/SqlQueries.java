@@ -6,21 +6,18 @@
 package scheduler.Model;
 
 //import static Scheduler.DBConn;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+
 import java.sql.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import static utils.DBConnection.getDbConn;
+
 
 /**
  *
  * @author flavius8
  */
 public class SqlQueries {
-    
+    static Timestamp timestamp = new Timestamp(System.currentTimeMillis());
     public static Connection DBConn = utils.DBConnection.getDbConn();
     
     public static User setCurrentUser(String uname){
@@ -84,17 +81,24 @@ public class SqlQueries {
     }
     
    
-public static void addAppointment(Integer custID, String title,String description, String location, String contact, String type, String url){
+public static void addAppointment(Integer custID, Integer userID, String title,String description,
+        String location, String contact, String type, String url, Timestamp start, Timestamp end,String userName){
     try{
-        String SQL = "INSERT INTO appointment (customerId,title,description,location,contact,type,url) VALUES (?,?,?,?,?,?,?)";
+        String SQL = "INSERT INTO appointment (customerId,userId,title,description,location,contact,type,url,start,end,createDate,createdBy,lastUpdateBy) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)";
         PreparedStatement statement =DBConn.prepareStatement(SQL);
         statement.setInt(1,custID);
-        statement.setString(2, title);
-        statement.setString(3, description);
-        statement.setString(4, location);
-        statement.setString(5, contact);
-        statement.setString(6, type);
-        statement.setString(7, url);
+        statement.setInt(2,userID);
+        statement.setString(3, title);
+        statement.setString(4, description);
+        statement.setString(5, location);
+        statement.setString(6, contact);
+        statement.setString(7, type);
+        statement.setString(8, url);
+        statement.setTimestamp(9, start);
+        statement.setTimestamp(10, end);
+        statement.setTimestamp(11, timestamp);
+        statement.setString(12, userName);
+        statement.setString(13, userName);
         statement.executeUpdate();
     }
     catch(SQLException e){
@@ -134,7 +138,7 @@ public static ObservableList assembleCustomerData(){
 public static ObservableList assembleAppointmentsData(){        
     ObservableList aptData = FXCollections.observableArrayList();
     try{      
-        String SQL = "Select * from appointment Order By customerId";            
+        String SQL = "Select * from appointment Order By appointmentId";            
         ResultSet result = DBConn.createStatement().executeQuery(SQL);  
         while(result.next()){
             Appointment apt = new Appointment();

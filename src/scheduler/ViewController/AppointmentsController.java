@@ -80,6 +80,10 @@ public class AppointmentsController implements Initializable {
     TextField type;
     @FXML
     TextField url;
+    @FXML
+    TextField start;
+    @FXML
+    TextField end;
 
     
     boolean addDisabled = true;
@@ -103,7 +107,9 @@ public class AppointmentsController implements Initializable {
     }
     @FXML
     public void handleAddApointmentSaveButton(ActionEvent e){
-     addAppointment(Integer.parseInt(custID.getText()),title.getText(),description.getText(),location.getText(),contact.getText(),type.getText(),url.getText());
+     addAppointment(Integer.parseInt(custID.getText()),currentUser.getUserId().get(),title.getText(),description.getText(),location.getText(),
+             contact.getText(),type.getText(),url.getText(),Timestamp.valueOf(start.getText()),Timestamp.valueOf(end.getText()),currentUser.getUsername().get());
+     appointmentTable.setItems(assembleAppointmentsData());
     }
 
 
