@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane id="AnchorPane" prefHeight="543.0" prefWidth="1407.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="scheduler.ViewController.AppointmentsController">
+    <children>
+      <TableView fx:id="appointmentTable" layoutX="14.0" layoutY="51.0" prefHeight="200.0" prefWidth="1321.0">
+        <columns>
+            <TableColumn fx:id="appointmentID" prefWidth="116.0" text="Apt. ID" />
+          <TableColumn fx:id="customerID" minWidth="0.0" prefWidth="51.999969482421875" text="Customer ID" />
+            <TableColumn fx:id="userID" prefWidth="50.000030517578125" text="User ID" />
+          <TableColumn fx:id="appointmentTitle" prefWidth="75.0" text="Title" />
+            <TableColumn fx:id="appointmentDescription" prefWidth="75.0" text="Description" />
+            <TableColumn fx:id="appointmentLocation" prefWidth="75.0" text="Location" />
+            <TableColumn fx:id="appointmentContact" prefWidth="75.0" text="Contact" />
+            <TableColumn fx:id="appointmentType" prefWidth="75.0" text="Type" />
+            <TableColumn fx:id="appointmentURL" prefWidth="75.0" text="URL" />
+            <TableColumn fx:id="appointmentStart" prefWidth="75.0" text="Start" />
+            <TableColumn fx:id="appointmentEnd" prefWidth="75.0" text="End" />
+            <TableColumn fx:id="appointmentCreateDate" prefWidth="75.0" text="Creation Date" />
+            <TableColumn fx:id="appointmentCreatedBy" prefWidth="75.0" text="Created By" />
+            <TableColumn fx:id="appointmentLastUpdate" prefWidth="75.0" text="Last Updated" />
+            <TableColumn fx:id="appointmentLastUpdateBy" prefWidth="75.0" text="Last Updated By" />
+        </columns>
+         <columnResizePolicy>
+            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+         </columnResizePolicy>
+      </TableView>
+      <Button layoutX="21.0" layoutY="272.0" mnemonicParsing="false" onAction="#handleAddAppointmentButton" prefHeight="25.0" prefWidth="55.0" text="Add" />
+      <Button layoutX="96.0" layoutY="272.0" mnemonicParsing="false" text="Update" />
+      <Button layoutX="171.0" layoutY="272.0" mnemonicParsing="false" text="Delete" />
+      <Label layoutX="21.0" layoutY="10.0" style="-fx-font-weight: Bold;" text="Appointments">
+         <font>
+            <Font size="18.0" />
+         </font>
+      </Label>
+      <Button layoutX="754.0" layoutY="272.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="51.0" text="Exit" />
+      <Pane fx:id="addAppointmentPane" disable="true" layoutX="14.0" layoutY="336.0" prefHeight="207.0" prefWidth="815.0">
+         <children>
+            <TextField fx:id="custID" layoutX="88.0" layoutY="52.0" />
+            <TextField fx:id="title" layoutX="88.0" layoutY="83.0" />
+            <TextField fx:id="description" layoutX="88.0" layoutY="116.0" />
+            <TextField fx:id="location" layoutX="336.0" layoutY="48.0" />
+            <TextField fx:id="contact" layoutX="336.0" layoutY="79.0" />
+            <TextField fx:id="type" layoutX="336.0" layoutY="112.0" />
+            <TextField layoutX="569.0" layoutY="118.0" />
+            <TextField layoutX="569.0" layoutY="83.0" />
+            <TextField fx:id="url" layoutX="569.0" layoutY="48.0" />
+            <Label layoutX="14.0" layoutY="56.0" text="Customer ID" />
+            <Label layoutX="14.0" layoutY="87.0" prefHeight="17.0" prefWidth="67.0" text="Title" />
+            <Label layoutX="17.0" layoutY="120.0" text="Description" />
+            <Label layoutX="277.0" layoutY="52.0" text="Location" />
+            <Label layoutX="279.0" layoutY="83.0" text="Contact" />
+            <Label layoutX="279.0" layoutY="116.0" text="Type" />
+            <Label layoutX="520.0" layoutY="52.0" text="URL" />
+            <Label layoutX="514.0" layoutY="87.0" text="START" />
+            <Label layoutX="519.0" layoutY="122.0" text="END" />
+            <Button layoutX="569.0" layoutY="168.0" mnemonicParsing="false" onAction="#handleAddApointmentSaveButton" prefHeight="25.0" prefWidth="51.0" text="Save" />
+            <Button layoutX="666.0" layoutY="168.0" mnemonicParsing="false" onAction="#handleAddAppointmentCancelButton" text="Cancel" />
+         </children>
+      </Pane>
+   </children>
+</AnchorPane>
