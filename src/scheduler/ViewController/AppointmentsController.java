@@ -13,12 +13,17 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.Pane;
+import javafx.stage.Stage;
 import static jdk.nashorn.internal.runtime.JSType.toInteger;
 import scheduler.Model.Appointment;
 import static scheduler.Model.SqlQueries.*;
@@ -96,6 +101,15 @@ public class AppointmentsController implements Initializable {
        addVisible = true;
        addAppointmentPane.setDisable(addDisabled);
        addAppointmentPane.setVisible(addVisible);
+       custID.setText("");
+       title.setText("");
+       description.setText("");
+       location.setText("");
+       contact.setText("");
+       type.setText("");
+       url.setText("");
+       start.setText("");
+       end.setText("");
     }
     
     @FXML 
@@ -104,7 +118,17 @@ public class AppointmentsController implements Initializable {
        addVisible = false;
        addAppointmentPane.setDisable(addDisabled);
        addAppointmentPane.setVisible(addVisible);
+       custID.setText("");
+       title.setText("");
+       description.setText("");
+       location.setText("");
+       contact.setText("");
+       type.setText("");
+       url.setText("");
+       start.setText("");
+       end.setText("");
     }
+    
     @FXML
     public void handleAddApointmentSaveButton(ActionEvent e){
      addAppointment(Integer.parseInt(custID.getText()),currentUser.getUserId().get(),title.getText(),description.getText(),location.getText(),
@@ -112,6 +136,44 @@ public class AppointmentsController implements Initializable {
      appointmentTable.setItems(assembleAppointmentsData());
     }
 
+    @FXML
+    public void handleDeleteAppointmentButton(ActionEvent e){
+     Appointment selectedAppointment =  appointmentTable.getSelectionModel().getSelectedItem();
+     deleteAppointment(selectedAppointment.getAppointmentId().get());
+     appointmentTable.setItems(assembleAppointmentsData());
+    }
+    
+    @FXML
+    public void handleModifyAppointmentButton(ActionEvent e)throws Exception{
+        Stage modifyAppointmentStage; 
+        Parent modifyAppointmentRoot; 
+        modifyAppointmentStage = (Stage)((Node)e.getSource()).getScene().getWindow();
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("ModifyAppointment.fxml"));
+        modifyAppointmentRoot = loader.load();
+        Scene scene = new Scene(modifyAppointmentRoot);
+        modifyAppointmentStage.setScene(scene);
+        modifyAppointmentStage.show(); 
+     
+        ModifyAppointmentController controller = loader.getController();
+        Appointment selectedAppointment =  appointmentTable.getSelectionModel().getSelectedItem();
+        controller.setAppointment(selectedAppointment,currentUser);
+    }
+    
+    @FXML
+    public void handleExitButton(ActionEvent e)throws Exception{
+        Stage homepageStage; 
+        Parent homepageRoot; 
+        homepageStage = (Stage)((Node)e.getSource()).getScene().getWindow();
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("Homepage.fxml"));
+        homepageRoot = loader.load();
+        
+        HomepageController controller = loader.getController();
+        controller.setCurrentUser(currentUser);
+        Scene homepageScene = new Scene(homepageRoot);
+        homepageStage.setScene(homepageScene);           
+        homepageStage.show(); 
+    }
+    
 
 
     @Override

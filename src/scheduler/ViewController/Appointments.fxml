@@ -34,15 +34,15 @@
          </columnResizePolicy>
       </TableView>
       <Button layoutX="21.0" layoutY="272.0" mnemonicParsing="false" onAction="#handleAddAppointmentButton" prefHeight="25.0" prefWidth="55.0" text="Add" />
-      <Button layoutX="96.0" layoutY="272.0" mnemonicParsing="false" text="Update" />
-      <Button layoutX="171.0" layoutY="272.0" mnemonicParsing="false" text="Delete" />
+      <Button layoutX="96.0" layoutY="272.0" mnemonicParsing="false" onAction="#handleModifyAppointmentButton" text="Update" />
+      <Button layoutX="171.0" layoutY="272.0" mnemonicParsing="false" onAction="#handleDeleteAppointmentButton" text="Delete" />
       <Label layoutX="21.0" layoutY="10.0" style="-fx-font-weight: Bold;" text="Appointments">
          <font>
             <Font size="18.0" />
          </font>
       </Label>
-      <Button layoutX="754.0" layoutY="272.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="51.0" text="Exit" />
-      <Pane fx:id="addAppointmentPane" disable="true" layoutX="14.0" layoutY="336.0" prefHeight="207.0" prefWidth="815.0">
+      <Button layoutX="754.0" layoutY="272.0" mnemonicParsing="false" onAction="#handleExitButton" prefHeight="25.0" prefWidth="51.0" text="Exit" />
+      <Pane fx:id="addAppointmentPane" disable="true" layoutX="14.0" layoutY="336.0" prefHeight="207.0" prefWidth="815.0" visible="false">
          <children>
             <TextField fx:id="custID" layoutX="88.0" layoutY="52.0" />
             <TextField fx:id="title" layoutX="88.0" layoutY="83.0" />

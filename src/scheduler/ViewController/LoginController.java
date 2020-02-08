@@ -33,9 +33,13 @@ import static scheduler.Model.SqlQueries.userCredential;
  * @author flavius8
  */
 public class LoginController implements Initializable {
-    
+    ResourceBundle rb = ResourceBundle.getBundle("language/rb");
+    String uLabel;
+    String pLabel;
     @FXML
-    private Label label;
+    Label userLabel;
+    @FXML
+    Label passLabel;
     @FXML
     TextField passwordInput;
     @FXML
@@ -66,8 +70,7 @@ public class LoginController implements Initializable {
         homepageStage.show(); 
         }
         else{
-            ResourceBundle rb = ResourceBundle.getBundle("language/rb");
-            System.out.println(Locale.getDefault());
+
             System.out.println(usernameInput.getText());
             System.out.println(passwordInput.getText());
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -84,7 +87,11 @@ public class LoginController implements Initializable {
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // TODO
+            System.out.println(Locale.getDefault());
+            this.uLabel = this.rb.getString("username");
+            this.pLabel = this.rb.getString("password");
+            userLabel.setText(uLabel);
+            passLabel.setText(pLabel);
     }    
     
 }
