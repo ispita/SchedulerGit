@@ -105,7 +105,32 @@ public static void addAppointment(Integer custID, Integer userID, String title,S
         System.out.println("Error: " + e);
     }
 }
-    
+   
+public static void addCustomer(Integer custID, Integer userID, String title,String description,
+        String location, String contact, String type, String url, Timestamp start, Timestamp end,String userName){
+    try{
+        String SQL = "INSERT INTO customer (customerId,userId,title,description,location,contact,type,url,start,end,createDate,createdBy,lastUpdateBy) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        PreparedStatement statement =DBConn.prepareStatement(SQL);
+        statement.setInt(1,custID);
+        statement.setInt(2,userID);
+        statement.setString(3, title);
+        statement.setString(4, description);
+        statement.setString(5, location);
+        statement.setString(6, contact);
+        statement.setString(7, type);
+        statement.setString(8, url);
+        statement.setTimestamp(9, start);
+        statement.setTimestamp(10, end);
+        statement.setTimestamp(11, timestamp);
+        statement.setString(12, userName);
+        statement.setString(13, userName);
+        statement.executeUpdate();
+    }
+    catch(SQLException e){
+        System.out.println("Error: " + e);
+    }
+}
+
 public static ObservableList assembleCustomerData(){        
     ObservableList custData = FXCollections.observableArrayList();
     try{      
