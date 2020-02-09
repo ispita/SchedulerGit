@@ -140,16 +140,20 @@ User currentUser;
        type.setText(modifiedAppointment.getAppointmentType().get());
        this.url.setText(modifiedAppointment.getAppointmentUrl().get());
        ObservableList appointmentTimes = getStartEndTimesAppointment(modifiedAppointment.getAppointmentId().get());
-       LocalDateTime apptStart = LocalDateTime.parse(appointmentTimes.get(0).toString(), DateTimeFormatter.ofPattern("yyy-MM-dd HH:mm:ss.s"));
+      
+       LocalDate apptStart = LocalDate.parse(appointmentTimes.get(0).toString().substring(0, 10), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        //System.out.println("appTimes: " + appointmentTimes.get(0).toString().substring(9, 2));
+       LocalTime apptTimes = LocalTime.parse(appointmentTimes.get(0).toString().substring(11, 16), DateTimeFormatter.ofPattern("HH:mm"));
+         System.out.println("this is apptStart: " + apptStart);
         hours.addAll("08", "09", "10", "11", "12", "13", "14", "15", "16", "17");
         minutes.addAll("00", "15", "30", "45");
         length.addAll("15", "30", "45","60");
         pickHour.setItems(hours);
         pickMin.setItems(minutes);
         pickLength.setItems(length);
-       start.setValue(apptStart.toLocalDate());
-       pickMin.setValue(Integer.toString(apptStart.toLocalTime().getMinute()));
-       pickHour.setValue(Integer.toString(apptStart.toLocalTime().getHour()));
+       start.setValue(apptStart);
+       pickMin.setValue(Integer.toString(apptTimes.getMinute()));
+       pickHour.setValue(Integer.toString(apptTimes.getHour()));
        pickLength.setValue(appointmentTimes.get(1).toString());
 
        

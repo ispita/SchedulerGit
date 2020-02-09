@@ -137,7 +137,7 @@ public static void addAppointment(Integer custID, Integer userID, String title,S
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle(rb.getString("sqltitle"));
             alert.setHeaderText(rb.getString("header"));
-            alert.setContentText(rb.getString("sqlcontent"));
+            alert.setContentText(rb.getString("appointmentExists"));
             alert.showAndWait();   
         }
     }
@@ -348,7 +348,15 @@ public static ObservableList getStartEndTimesAppointment(Integer aptID){
     statement.setInt(1,aptID);
     ResultSet result = statement.executeQuery();
     while(result.next()){
-        appointmentTimes.add(result.getTimestamp("start"));
+            Date currentStartDate = result.getTimestamp("start");
+            LocalDate currentStartLocalDate = currentStartDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            LocalTime currentStartLocalTime = currentStartDate.toInstant().atZone(ZoneId.systemDefault()).toLocalTime();        
+            ZoneId dbZoneId = ZoneId.of("America/Chicago");
+            ZonedDateTime currentStartDateZDT = ZonedDateTime.of(currentStartLocalDate,currentStartLocalTime,dbZoneId);
+            Instant currentStartDateInstant = currentStartDateZDT.toInstant();
+            currentStartDateTime = currentStartDateInstant.atZone(ZoneId.of(TimeZone.getDefault().getID())); 
+        appointmentTimes.add(currentStartDateTime);
+        System.out.println("CurrentStartDateTimeModifyTest: " + currentStartDateTime);
         appointmentTimes.add(result.getInt("apptLength"));
     }
     }
