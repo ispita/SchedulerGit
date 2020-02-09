@@ -6,6 +6,9 @@
 package scheduler.Model;
 
 import java.sql.Timestamp;
+import java.time.OffsetDateTime;
+import java.time.ZonedDateTime;
+import java.util.Date;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -28,7 +31,7 @@ public class Appointment {
     private StringProperty appointmentContact;
     private StringProperty appointmentType;
     private StringProperty appointmentUrl;
-    private ObjectProperty<Timestamp> appointmentStart; 
+    private ObjectProperty<ZonedDateTime> appointmentStart; 
     private ObjectProperty<Timestamp> appointmentEnd; 
     private ObjectProperty<Timestamp> appointmentCreateDate; 
     private StringProperty appointmentCreatedBy;
@@ -127,11 +130,11 @@ public class Appointment {
     public void setAppointmentUrl (String URL){
         this.appointmentUrl.set(URL);
     }
-    public void setAppointmentStart(Timestamp Start){
-        this.appointmentCreateDate.set(Start);
+    public void setAppointmentStart(ZonedDateTime Start){
+        this.appointmentStart.set(Start);
     }
     public void setAppointmentEnd(Timestamp End){
-        this.appointmentCreateDate.set(End);
+        this.appointmentEnd.set(End);
     }
     public void setAppointmentCreateDate(Timestamp CreateDate){
         this.appointmentCreateDate.set(CreateDate);

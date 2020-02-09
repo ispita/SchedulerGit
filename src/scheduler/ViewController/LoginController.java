@@ -7,11 +7,7 @@ package scheduler.ViewController;
 
 import scheduler.Model.SqlQueries;
 import scheduler.Model.User;
-import utils.DBConnection;
 import java.net.URL;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
@@ -90,8 +86,8 @@ public class LoginController implements Initializable {
             System.out.println(Locale.getDefault());
             this.uLabel = this.rb.getString("username");
             this.pLabel = this.rb.getString("password");
-            userLabel.setText(uLabel);
-            passLabel.setText(pLabel);
+            this.userLabel.setText(uLabel);
+            this.passLabel.setText(pLabel);
     }    
     
 }

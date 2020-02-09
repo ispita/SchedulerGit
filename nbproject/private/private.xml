@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-private xmlns="http://www.netbeans.org/ns/project-private/1">
+    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
+    <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
+        <group>
+            <file>file:/D:/Users/flofl/Documents/NetBeansProjects/SchedulerGit/src/language/rb_ro.properties</file>
+            <file>file:/D:/Users/flofl/Documents/NetBeansProjects/SchedulerGit/src/scheduler/ViewController/ModifyAppointmentController.java</file>
+            <file>file:/D:/Users/flofl/Documents/NetBeansProjects/SchedulerGit/src/scheduler/Model/Appointment.java</file>
+            <file>file:/D:/Users/flofl/Documents/NetBeansProjects/SchedulerGit/src/scheduler/ViewController/LoginController.java</file>
+            <file>file:/D:/Users/flofl/Documents/NetBeansProjects/SchedulerGit/src/scheduler/ViewController/ModifyAppointment.fxml</file>
+            <file>file:/D:/Users/flofl/Documents/NetBeansProjects/SchedulerGit/src/scheduler/Scheduler.java</file>
+            <file>file:/D:/Users/flofl/Documents/NetBeansProjects/SchedulerGit/src/utils/DBConnection.java</file>
+            <file>file:/D:/Users/flofl/Documents/NetBeansProjects/SchedulerGit/src/scheduler/ViewController/ModifyCustomerController.java</file>
+            <file>file:/D:/Users/flofl/Documents/NetBeansProjects/SchedulerGit/src/scheduler/ViewController/ModifyCustomer.fxml</file>
+            <file>file:/D:/Users/flofl/Documents/NetBeansProjects/SchedulerGit/src/scheduler/ViewController/HomepageController.java</file>
+            <file>file:/D:/Users/flofl/Documents/NetBeansProjects/SchedulerGit/src/language/rb_en.properties</file>
+            <file>file:/D:/Users/flofl/Documents/NetBeansProjects/SchedulerGit/src/scheduler/ViewController/Appointments.fxml</file>
+            <file>file:/D:/Users/flofl/Documents/NetBeansProjects/SchedulerGit/src/scheduler/ViewController/AppointmentsController.java</file>
+            <file>file:/D:/Users/flofl/Documents/NetBeansProjects/SchedulerGit/src/scheduler/ViewController/Customer.fxml</file>
+            <file>file:/D:/Users/flofl/Documents/NetBeansProjects/SchedulerGit/src/scheduler/ViewController/CustomerController.java</file>
+            <file>file:/D:/Users/flofl/Documents/NetBeansProjects/SchedulerGit/src/scheduler/Model/SqlQueries.java</file>
+        </group>
+    </open-files>
+</project-private>

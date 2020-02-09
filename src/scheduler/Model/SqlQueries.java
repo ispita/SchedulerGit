@@ -8,8 +8,19 @@ package scheduler.Model;
 //import static Scheduler.DBConn;
 
 import java.sql.*;
-import java.util.Locale;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.Month;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.ResourceBundle;
+import java.util.TimeZone;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Alert;
@@ -20,7 +31,9 @@ import javafx.scene.control.Alert;
  * @author flavius8
  */
 public class SqlQueries {
+    static ZonedDateTime currentDateTime;
     static Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+    static TimeZone timeZone = TimeZone.getDefault();
     public static Connection DBConn = utils.DBConnection.getDbConn();
     
     public static User setCurrentUser(String uname){
@@ -85,9 +98,14 @@ public class SqlQueries {
     
    
 public static void addAppointment(Integer custID, Integer userID, String title,String description,
-        String location, String contact, String type, String url, Timestamp start, Timestamp end,String userName){
+        String location, String contact, String type, String url, ZonedDateTime start, Integer end,String userName){
+    LocalDateTime startLDT = start.toLocalDateTime();
+    Timestamp startTimestamp = Timestamp.valueOf(startLDT);
+    System.out.println("DateTime: " + currentDateTime);
+    System.out.println("Timestamp: " + timestamp);
     try{
-        String SQL = "INSERT INTO appointment (customerId,userId,title,description,location,contact,type,url,start,end,createDate,createdBy,lastUpdateBy) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        String SQL = "INSERT INTO appointment (customerId,userId,title,description,location,contact,type,url,start,end,createDate,createdBy,lastUpdateBy) "
+                + "VALUES (?,?,?,?,?,?,?,?,?,TIMESTAMPADD(MINUTE,?,?),?,?,?)";
         PreparedStatement statement =DBConn.prepareStatement(SQL);
         statement.setInt(1,custID);
         statement.setInt(2,userID);
@@ -97,11 +115,12 @@ public static void addAppointment(Integer custID, Integer userID, String title,S
         statement.setString(6, contact);
         statement.setString(7, type);
         statement.setString(8, url);
-        statement.setTimestamp(9, start);
-        statement.setTimestamp(10, end);
-        statement.setTimestamp(11, timestamp);
-        statement.setString(12, userName);
+        statement.setTimestamp(9, startTimestamp);
+        statement.setInt(10, end);
+        statement.setTimestamp(11, startTimestamp);
+        statement.setTimestamp(12, timestamp);
         statement.setString(13, userName);
+        statement.setString(14, userName);
         statement.executeUpdate();
     }
     catch(SQLException e){
@@ -334,6 +353,13 @@ public static ObservableList assembleAppointmentsData(){
         String SQL = "Select * from appointment Order By appointmentId";            
         ResultSet result = DBConn.createStatement().executeQuery(SQL);  
         while(result.next()){
+            Date currentDate = result.getTimestamp("start");
+            LocalDate currentLocalDate = currentDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            LocalTime currentLocalTime = currentDate.toInstant().atZone(ZoneId.systemDefault()).toLocalTime();
+            ZoneId dbZoneId = ZoneId.of("America/Chicago");
+            ZonedDateTime currentDateZDT = ZonedDateTime.of(currentLocalDate,currentLocalTime,dbZoneId);
+            Instant currentDateInstant = currentDateZDT.toInstant();
+            currentDateTime = currentDateInstant.atZone(ZoneId.of(TimeZone.getDefault().getID())); 
             Appointment apt = new Appointment();
             apt.setAppointmentID(result.getInt("appointmentId")); 
            // System.out.println("Customer ID: " + result.getInt("customerId"));
@@ -345,7 +371,7 @@ public static ObservableList assembleAppointmentsData(){
             apt.setAppointmentContact(result.getString("contact"));
             apt.setAppointmentType(result.getString("type"));
             apt.setAppointmentUrl(result.getString("url"));
-            apt.setAppointmentStart(result.getTimestamp("start"));
+            apt.setAppointmentStart(currentDateTime);
             apt.setAppointmentEnd(result.getTimestamp("end"));
             apt.setAppointmentCreateDate(result.getTimestamp("createDate"));
             apt.setAppointmentCreatedBy(result.getString("createdBy"));
@@ -362,4 +388,147 @@ public static ObservableList assembleAppointmentsData(){
     }
     return aptData;
 }
+
+public static ObservableList assembleAppointmentsFilteredData(String year, String month, String week){
+      if (month.length() == 1){
+         month = "0" + month;
+     }
+     String yearMonth = year + month;
+     String yearMonthDay = year + "-" + month + "-01";
+    ObservableList aptData = FXCollections.observableArrayList();
+    try{
+        if (week != null){
+            System.out.println("Entering week filter!");
+        String SQL = "SELECT * "
+                + "FROM appointment where (WEEK(date(start)) - WEEK(?) + 1) = ? "
+                + "AND EXTRACT(YEAR_MONTH FROM date(start)) = ? Order By appointmentId";  
+            PreparedStatement statement =DBConn.prepareStatement(SQL);
+        statement.setString(1,yearMonthDay);
+        statement.setString(2,week);
+        statement.setString(3,yearMonth);
+        ResultSet result = statement.executeQuery();
+        while(result.next()){
+            Date currentDate = result.getTimestamp("start");
+            LocalDate currentLocalDate = currentDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            LocalTime currentLocalTime = currentDate.toInstant().atZone(ZoneId.systemDefault()).toLocalTime();
+            ZoneId dbZoneId = ZoneId.of("America/Chicago");
+            ZonedDateTime currentDateZDT = ZonedDateTime.of(currentLocalDate,currentLocalTime,dbZoneId);
+            Instant currentDateInstant = currentDateZDT.toInstant();
+            currentDateTime = currentDateInstant.atZone(ZoneId.of(TimeZone.getDefault().getID())); 
+            Appointment apt = new Appointment();
+            apt.setAppointmentID(result.getInt("appointmentId")); 
+            apt.setCustomerID(result.getInt("customerID"));
+            apt.setUserID(result.getInt("userID"));
+            apt.setAppointmentTitle(result.getString("title"));
+            apt.setAppointmentDescription(result.getString("description"));
+            apt.setAppointmentLocation(result.getString("location"));
+            apt.setAppointmentContact(result.getString("contact"));
+            apt.setAppointmentType(result.getString("type"));
+            apt.setAppointmentUrl(result.getString("url"));
+            apt.setAppointmentStart(currentDateTime);
+            apt.setAppointmentEnd(result.getTimestamp("end"));
+            apt.setAppointmentCreateDate(result.getTimestamp("createDate"));
+            apt.setAppointmentCreatedBy(result.getString("createdBy"));
+            apt.setAppointmentLastUpdate(result.getTimestamp("lastUpdate"));
+            apt.setAppointmentLastUpdatedBy(result.getString("lastUpdateBy"));
+            System.out.println("Appointment Data: " + apt.getAppointmentTitle().get());
+            aptData.add(apt);
+        }            
+        }
+        else{
+            System.out.println("Entering Month Filter!");
+            String SQL = "SELECT * FROM appointment where EXTRACT(YEAR_MONTH FROM date(start)) = '"+yearMonth+"' Order By appointmentId";  
+         ResultSet result = DBConn.createStatement().executeQuery(SQL);
+        while(result.next()){
+            Appointment apt = new Appointment();
+            Date currentDate = result.getTimestamp("start");
+            LocalDate currentLocalDate = currentDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            LocalTime currentLocalTime = currentDate.toInstant().atZone(ZoneId.systemDefault()).toLocalTime();
+            ZoneId dbZoneId = ZoneId.of("America/Chicago");
+            ZonedDateTime currentDateZDT = ZonedDateTime.of(currentLocalDate,currentLocalTime,dbZoneId);
+            Instant currentDateInstant = currentDateZDT.toInstant();
+            currentDateTime = currentDateInstant.atZone(ZoneId.of(TimeZone.getDefault().getID()));           
+            apt.setAppointmentID(result.getInt("appointmentId")); 
+            apt.setCustomerID(result.getInt("customerID"));
+            apt.setUserID(result.getInt("userID"));
+            apt.setAppointmentTitle(result.getString("title"));
+            apt.setAppointmentDescription(result.getString("description"));
+            apt.setAppointmentLocation(result.getString("location"));
+            apt.setAppointmentContact(result.getString("contact"));
+            apt.setAppointmentType(result.getString("type"));
+            apt.setAppointmentUrl(result.getString("url"));
+            apt.setAppointmentStart(currentDateTime);
+            apt.setAppointmentEnd(result.getTimestamp("end"));
+            apt.setAppointmentCreateDate(result.getTimestamp("createDate"));
+            apt.setAppointmentCreatedBy(result.getString("createdBy"));
+            apt.setAppointmentLastUpdate(result.getTimestamp("lastUpdate"));
+            apt.setAppointmentLastUpdatedBy(result.getString("lastUpdateBy"));
+            aptData.add(apt);
+        }
+        }
+     
+    }
+    catch(SQLException e){
+
+          System.out.println("Error: " + e);            
+    }
+    return aptData;
+}
+
+ public static ObservableList getYears(){
+     ObservableList yearData = FXCollections.observableArrayList();
+     try{
+         String SQL = "select distinct YEAR(start) as year from appointment";
+         ResultSet result = DBConn.createStatement().executeQuery(SQL);
+         while(result.next()){
+             yearData.add(result.getString("year"));
+         }
+     }
+     catch(SQLException e){
+         System.out.println("Error: " + e);
+     }
+     return yearData;
+ }
+ 
+   public static ObservableList getMonths(String year){
+       System.out.println("Year Chosen: " + year);
+     ObservableList monthsData = FXCollections.observableArrayList();
+     try{
+         String SQL = "select distinct extract(MONTH from date(start)) as month from appointment where EXTRACT(YEAR from date(start)) = " + year;
+
+
+         ResultSet result = DBConn.createStatement().executeQuery(SQL);
+         while(result.next()){
+             monthsData.add(result.getString("month"));
+         }
+     }
+     catch(SQLException e){
+         System.out.println("Error Months: " + e);
+     }
+     return monthsData;
+ }
+  public static ObservableList getWeeks(String year, String month){
+     if (month.length() == 1){
+         month = "0" + month;
+     }
+     String yearMonth = year + month;
+     String yearMonthDay = year + "-" + month + "-01";
+     ObservableList weeksData = FXCollections.observableArrayList();
+     try{
+         String SQL = "select distinct(WEEK(date(start)) - WEEK('"+yearMonthDay+"') + 1) as week from appointment where EXTRACT(YEAR_MONTH FROM date(start)) = " + yearMonth;
+         ResultSet result = DBConn.createStatement().executeQuery(SQL);
+         while(result.next()){
+             weeksData.add(result.getString("week"));
+         }
+     }
+     catch(SQLException e){
+         System.out.println("Error Weeks: " + e);
+     }
+     return weeksData;
+ }
+  
+
+ 
+ 
+
 }

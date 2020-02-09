@@ -8,7 +8,15 @@ package scheduler.ViewController;
 
 import java.net.URL;
 import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Date;
 import java.util.ResourceBundle;
+import java.util.TimeZone;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -18,13 +26,13 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
-import static jdk.nashorn.internal.runtime.JSType.toInteger;
 import scheduler.Model.Appointment;
 import static scheduler.Model.SqlQueries.*;
 import scheduler.Model.User;
@@ -36,6 +44,9 @@ import scheduler.Model.User;
  */
 public class AppointmentsController implements Initializable {
     User currentUser;
+    String year;
+    String month;
+    String week;
     private ObservableList<Appointment> appointmentData = FXCollections.observableArrayList();
     @FXML
     private TableView<Appointment> appointmentTable;
@@ -86,14 +97,25 @@ public class AppointmentsController implements Initializable {
     @FXML
     TextField url;
     @FXML
-    TextField start;
+    DatePicker start;
     @FXML
-    TextField end;
-
-    
+    private ComboBox<String> pickHour;
+    @FXML
+    private ComboBox<String> pickMin;
+    @FXML
+    private ComboBox<String> pickLength;
+    @FXML
+    private ComboBox<String> pickYear;
+    @FXML
+    private ComboBox<String> pickWeek;
+    @FXML
+    private ComboBox<String> pickMonth;    
+    ObservableList<String> hours = FXCollections.observableArrayList();
+    ObservableList<String> minutes = FXCollections.observableArrayList();
+    ObservableList<String> length = FXCollections.observableArrayList();
     boolean addDisabled = true;
     boolean addVisible = false;
-    
+    Integer apptLength;
     @FXML
     public void handleAddAppointmentButton(ActionEvent e){
         System.out.println("You Pushed Add Appointment Button");
@@ -108,8 +130,8 @@ public class AppointmentsController implements Initializable {
        contact.setText("");
        type.setText("");
        url.setText("");
-       start.setText("");
-       end.setText("");
+       //end.setValue(null);
+       start.setValue(null);
     }
     
     @FXML 
@@ -125,14 +147,26 @@ public class AppointmentsController implements Initializable {
        contact.setText("");
        type.setText("");
        url.setText("");
-       start.setText("");
-       end.setText("");
+       //end.setValue(null);
+       start.setValue(null);
     }
     
     @FXML
     public void handleAddApointmentSaveButton(ActionEvent e){
+     LocalDate startDate = start.getValue();
+     String hour = pickHour.getValue();
+     String minute = pickMin.getValue();
+     apptLength = Integer.parseInt(pickLength.getValue());
+     LocalDateTime startDateTime = LocalDateTime.of(startDate.getYear(), startDate.getMonthValue(), startDate.getDayOfMonth(), Integer.parseInt(hour), Integer.parseInt(minute));
+
+      LocalTime currentLocalTime = startDateTime.toLocalTime();
+      ZoneId dbZoneId = ZoneId.of("America/Chicago");
+      ZonedDateTime currentDateZDT = ZonedDateTime.of(startDate,currentLocalTime,ZoneId.of(TimeZone.getDefault().getID()));
+      Instant currentDateInstant = currentDateZDT.toInstant();
+      ZonedDateTime currentDateTime = currentDateInstant.atZone(dbZoneId); 
+        System.out.println("The start date/time is: " + startDateTime + " and will last: " + apptLength);
      addAppointment(Integer.parseInt(custID.getText()),currentUser.getUserId().get(),title.getText(),description.getText(),location.getText(),
-             contact.getText(),type.getText(),url.getText(),Timestamp.valueOf(start.getText()),Timestamp.valueOf(end.getText()),currentUser.getUsername().get());
+             contact.getText(),type.getText(),url.getText(),currentDateTime,apptLength,currentUser.getUsername().get());
      appointmentTable.setItems(assembleAppointmentsData());
     }
 
@@ -174,6 +208,39 @@ public class AppointmentsController implements Initializable {
         homepageStage.show(); 
     }
     
+    @FXML
+    public void handleYearSelect(ActionEvent e){
+       if (pickYear.getValue() == null){
+          return;
+       }else{
+       year = pickYear.getValue();       
+       pickMonth.setItems(getMonths(year));
+       }
+    }
+    
+    @FXML void handleMonthSelect (ActionEvent e){
+               if (pickYear.getValue() == null){
+          return;
+       }else{
+        month = pickMonth.getValue();
+        pickWeek.setItems(getWeeks(pickYear.getValue(),month));
+               }
+    }
+    @FXML void handleFilterAppointments(ActionEvent e){
+  
+        week = pickWeek.getValue();
+        System.out.println("Week value: " + week);
+        appointmentTable.setItems(assembleAppointmentsFilteredData(year,month,week));
+         pickYear.getSelectionModel().clearSelection();
+        pickWeek.getSelectionModel().clearSelection();
+        pickWeek.setValue(null);
+        pickWeek.setItems(null);
+        pickMonth.getSelectionModel().clearSelection();
+        pickMonth.setValue(null);
+        pickMonth.setItems(null);
+
+    }
+    
 
 
     @Override
@@ -195,6 +262,13 @@ public class AppointmentsController implements Initializable {
         appointmentLastUpdateBy.setCellValueFactory(cellData -> cellData.getValue().getAppointmentLastUpdatedBy());
         appointmentTable.setItems(assembleAppointmentsData());
         System.out.println("Appointment Table Contents: " + appointmentTable.getItems());
+        hours.addAll("08", "09", "10", "11", "12", "13", "14", "15", "16", "17");
+        minutes.addAll("00", "15", "30", "45");
+        length.addAll("15", "30", "45","60");
+        pickHour.setItems(hours);
+        pickMin.setItems(minutes);
+        pickLength.setItems(length);
+        pickYear.setItems(getYears());
     }   
     
     public void setCurrentUser(User passCurrentUser){
