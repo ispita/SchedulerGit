@@ -5,9 +5,15 @@
  */
 package scheduler.ViewController;
 
+import java.io.File;
+import java.io.IOException;
 import scheduler.Model.SqlQueries;
 import scheduler.Model.User;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.sql.Timestamp;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
@@ -43,7 +49,7 @@ public class LoginController implements Initializable {
     String username;
     String password;
     User currentUser = null;
-    
+    static Timestamp timestamp = new Timestamp(System.currentTimeMillis());
     @FXML
     private void handleLoginButton(ActionEvent e)throws Exception{
         
@@ -53,6 +59,13 @@ public class LoginController implements Initializable {
         if(credCheck == true){
         currentUser = SqlQueries.setCurrentUser(username);
             System.out.println(currentUser.getUsername().get());
+        File file = new File("userLog.txt");
+        file.createNewFile();
+        try {
+              Files.write(Paths.get("userLog.txt"), ("User: "+ username +" Login Time: " + timestamp +"").getBytes(), StandardOpenOption.APPEND);
+             }catch (IOException ex) {
+            System.out.println("Error: " + ex);
+        }
         Stage homepageStage; 
         Parent homepageRoot; 
         homepageStage = (Stage)((Node)e.getSource()).getScene().getWindow();

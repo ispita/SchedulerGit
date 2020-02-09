@@ -105,6 +105,8 @@ public class CustomerController implements Initializable {
     }
         @FXML
     public void handleModifyCustomerButton(ActionEvent e)throws Exception{
+        Customer selectedCustomer =  customerTable.getSelectionModel().getSelectedItem();
+        if (selectedCustomer != null){
         Stage modifyCustomerStage; 
         Parent modifyCustomerRoot; 
         modifyCustomerStage = (Stage)((Node)e.getSource()).getScene().getWindow();
@@ -115,8 +117,17 @@ public class CustomerController implements Initializable {
         modifyCustomerStage.show(); 
      
         ModifyCustomerController controller = loader.getController();
-        Customer selectedCustomer =  customerTable.getSelectionModel().getSelectedItem();
         controller.setCustomer(selectedCustomer,currentUser);
+        }
+            else{   
+            ResourceBundle rb = ResourceBundle.getBundle("language/rb");
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle(rb.getString("sqltitle"));
+            alert.setHeaderText(rb.getString("header"));
+            alert.setContentText(rb.getString("modifyNull"));
+            alert.showAndWait();
+        }
+            
     }
     @FXML
     public void handleAddCustomerSaveButton(ActionEvent e){
@@ -166,6 +177,7 @@ public class CustomerController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+            //These lambda expressions allow me to directly call getter functions from the Customer class making the code more readable and more efficient.
         customerID.setCellValueFactory(cellData -> cellData.getValue().getCustomerId().asObject());
         customerName.setCellValueFactory(cellData -> cellData.getValue().getCustomerName());      
         customerAddressID.setCellValueFactory(cellData -> cellData.getValue().getCustomerAddressId().asObject());

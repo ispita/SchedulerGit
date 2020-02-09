@@ -32,6 +32,8 @@ import javafx.scene.control.Alert;
  */
 public class SqlQueries {
     static ZonedDateTime currentDateTime;
+    static ZonedDateTime currentStartDateTime;
+    static ZonedDateTime currentEndDateTime;
     static Timestamp timestamp = new Timestamp(System.currentTimeMillis());
     static TimeZone timeZone = TimeZone.getDefault();
     public static Connection DBConn = utils.DBConnection.getDbConn();
@@ -288,7 +290,7 @@ public static void modifyAppointment(Integer aptID, Integer custID, Integer user
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle(rb.getString("sqltitle"));
             alert.setHeaderText(rb.getString("header"));
-            alert.setContentText(rb.getString("sqlcontent"));
+            alert.setContentText(rb.getString("appointmentExists"));
             alert.showAndWait();   
          }
     }
@@ -298,7 +300,7 @@ public static void modifyAppointment(Integer aptID, Integer custID, Integer user
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle(rb.getString("sqltitle"));
             alert.setHeaderText(rb.getString("header"));
-            alert.setContentText(rb.getString("sqlcontent"));
+            alert.setContentText(rb.getString("appointmentExists"));
             alert.showAndWait(); 
     }
     
@@ -392,13 +394,19 @@ public static ObservableList assembleAppointmentsData(){
         String SQL = "Select * from appointment Order By appointmentId";            
         ResultSet result = DBConn.createStatement().executeQuery(SQL);  
         while(result.next()){
-            Date currentDate = result.getTimestamp("start");
-            LocalDate currentLocalDate = currentDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-            LocalTime currentLocalTime = currentDate.toInstant().atZone(ZoneId.systemDefault()).toLocalTime();
+            Date currentStartDate = result.getTimestamp("start");
+            Date currentEndDate = result.getTimestamp("end");
+            LocalDate currentStartLocalDate = currentStartDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            LocalTime currentStartLocalTime = currentStartDate.toInstant().atZone(ZoneId.systemDefault()).toLocalTime();
+            LocalDate currentEndLocalDate = currentEndDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            LocalTime currentEndLocalTime = currentEndDate.toInstant().atZone(ZoneId.systemDefault()).toLocalTime();           
             ZoneId dbZoneId = ZoneId.of("America/Chicago");
-            ZonedDateTime currentDateZDT = ZonedDateTime.of(currentLocalDate,currentLocalTime,dbZoneId);
-            Instant currentDateInstant = currentDateZDT.toInstant();
-            currentDateTime = currentDateInstant.atZone(ZoneId.of(TimeZone.getDefault().getID())); 
+            ZonedDateTime currentStartDateZDT = ZonedDateTime.of(currentStartLocalDate,currentStartLocalTime,dbZoneId);
+            ZonedDateTime currentEndDateZDT = ZonedDateTime.of(currentEndLocalDate,currentEndLocalTime,dbZoneId);
+            Instant currentStartDateInstant = currentStartDateZDT.toInstant();
+            Instant currentEndDateInstant = currentEndDateZDT.toInstant();
+            currentStartDateTime = currentStartDateInstant.atZone(ZoneId.of(TimeZone.getDefault().getID())); 
+            currentEndDateTime = currentEndDateInstant.atZone(ZoneId.of(TimeZone.getDefault().getID())); 
             Appointment apt = new Appointment();
             apt.setAppointmentID(result.getInt("appointmentId")); 
            // System.out.println("Customer ID: " + result.getInt("customerId"));
@@ -410,8 +418,8 @@ public static ObservableList assembleAppointmentsData(){
             apt.setAppointmentContact(result.getString("contact"));
             apt.setAppointmentType(result.getString("type"));
             apt.setAppointmentUrl(result.getString("url"));
-            apt.setAppointmentStart(currentDateTime);
-            apt.setAppointmentEnd(result.getTimestamp("end"));
+            apt.setAppointmentStart(currentStartDateTime);
+            apt.setAppointmentEnd(currentEndDateTime);
             apt.setAppointmentCreateDate(result.getTimestamp("createDate"));
             apt.setAppointmentCreatedBy(result.getString("createdBy"));
             apt.setAppointmentLastUpdate(result.getTimestamp("lastUpdate"));
@@ -447,13 +455,19 @@ public static ObservableList assembleAppointmentsFilteredData(String year, Strin
         statement.setString(3,yearMonth);
         ResultSet result = statement.executeQuery();
         while(result.next()){
-            Date currentDate = result.getTimestamp("start");
-            LocalDate currentLocalDate = currentDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-            LocalTime currentLocalTime = currentDate.toInstant().atZone(ZoneId.systemDefault()).toLocalTime();
+            Date currentStartDate = result.getTimestamp("start");
+            Date currentEndDate = result.getTimestamp("end");
+            LocalDate currentStartLocalDate = currentStartDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            LocalTime currentStartLocalTime = currentStartDate.toInstant().atZone(ZoneId.systemDefault()).toLocalTime();
+            LocalDate currentEndLocalDate = currentEndDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            LocalTime currentEndLocalTime = currentEndDate.toInstant().atZone(ZoneId.systemDefault()).toLocalTime();           
             ZoneId dbZoneId = ZoneId.of("America/Chicago");
-            ZonedDateTime currentDateZDT = ZonedDateTime.of(currentLocalDate,currentLocalTime,dbZoneId);
-            Instant currentDateInstant = currentDateZDT.toInstant();
-            currentDateTime = currentDateInstant.atZone(ZoneId.of(TimeZone.getDefault().getID())); 
+            ZonedDateTime currentStartDateZDT = ZonedDateTime.of(currentStartLocalDate,currentStartLocalTime,dbZoneId);
+            ZonedDateTime currentEndDateZDT = ZonedDateTime.of(currentEndLocalDate,currentEndLocalTime,dbZoneId);
+            Instant currentStartDateInstant = currentStartDateZDT.toInstant();
+            Instant currentEndDateInstant = currentEndDateZDT.toInstant();
+            currentStartDateTime = currentStartDateInstant.atZone(ZoneId.of(TimeZone.getDefault().getID())); 
+            currentEndDateTime = currentEndDateInstant.atZone(ZoneId.of(TimeZone.getDefault().getID())); 
             Appointment apt = new Appointment();
             apt.setAppointmentID(result.getInt("appointmentId")); 
             apt.setCustomerID(result.getInt("customerID"));
@@ -465,7 +479,7 @@ public static ObservableList assembleAppointmentsFilteredData(String year, Strin
             apt.setAppointmentType(result.getString("type"));
             apt.setAppointmentUrl(result.getString("url"));
             apt.setAppointmentStart(currentDateTime);
-            apt.setAppointmentEnd(result.getTimestamp("end"));
+            apt.setAppointmentEnd(currentEndDateTime);
             apt.setAppointmentCreateDate(result.getTimestamp("createDate"));
             apt.setAppointmentCreatedBy(result.getString("createdBy"));
             apt.setAppointmentLastUpdate(result.getTimestamp("lastUpdate"));
@@ -480,13 +494,19 @@ public static ObservableList assembleAppointmentsFilteredData(String year, Strin
          ResultSet result = DBConn.createStatement().executeQuery(SQL);
         while(result.next()){
             Appointment apt = new Appointment();
-            Date currentDate = result.getTimestamp("start");
-            LocalDate currentLocalDate = currentDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-            LocalTime currentLocalTime = currentDate.toInstant().atZone(ZoneId.systemDefault()).toLocalTime();
+            Date currentStartDate = result.getTimestamp("start");
+            Date currentEndDate = result.getTimestamp("end");
+            LocalDate currentStartLocalDate = currentStartDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            LocalTime currentStartLocalTime = currentStartDate.toInstant().atZone(ZoneId.systemDefault()).toLocalTime();
+            LocalDate currentEndLocalDate = currentEndDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            LocalTime currentEndLocalTime = currentEndDate.toInstant().atZone(ZoneId.systemDefault()).toLocalTime();           
             ZoneId dbZoneId = ZoneId.of("America/Chicago");
-            ZonedDateTime currentDateZDT = ZonedDateTime.of(currentLocalDate,currentLocalTime,dbZoneId);
-            Instant currentDateInstant = currentDateZDT.toInstant();
-            currentDateTime = currentDateInstant.atZone(ZoneId.of(TimeZone.getDefault().getID()));           
+            ZonedDateTime currentStartDateZDT = ZonedDateTime.of(currentStartLocalDate,currentStartLocalTime,dbZoneId);
+            ZonedDateTime currentEndDateZDT = ZonedDateTime.of(currentEndLocalDate,currentEndLocalTime,dbZoneId);
+            Instant currentStartDateInstant = currentStartDateZDT.toInstant();
+            Instant currentEndDateInstant = currentEndDateZDT.toInstant();
+            currentStartDateTime = currentStartDateInstant.atZone(ZoneId.of(TimeZone.getDefault().getID())); 
+            currentEndDateTime = currentEndDateInstant.atZone(ZoneId.of(TimeZone.getDefault().getID()));          
             apt.setAppointmentID(result.getInt("appointmentId")); 
             apt.setCustomerID(result.getInt("customerID"));
             apt.setUserID(result.getInt("userID"));
@@ -497,7 +517,7 @@ public static ObservableList assembleAppointmentsFilteredData(String year, Strin
             apt.setAppointmentType(result.getString("type"));
             apt.setAppointmentUrl(result.getString("url"));
             apt.setAppointmentStart(currentDateTime);
-            apt.setAppointmentEnd(result.getTimestamp("end"));
+            apt.setAppointmentEnd(currentEndDateTime);
             apt.setAppointmentCreateDate(result.getTimestamp("createDate"));
             apt.setAppointmentCreatedBy(result.getString("createdBy"));
             apt.setAppointmentLastUpdate(result.getTimestamp("lastUpdate"));
@@ -513,6 +533,103 @@ public static ObservableList assembleAppointmentsFilteredData(String year, Strin
     }
     return aptData;
 }
+
+
+public static Integer assembleAppointmentsType(String year, String month){
+      if (month.length() == 1){
+         month = "0" + month;
+     }
+     String yearMonth = year + month;
+     Integer amount = null;
+    try{
+     
+        String SQL = "SELECT count(distinct type) as amount FROM appointment where EXTRACT(YEAR_MONTH FROM date(start)) = ?";  
+            PreparedStatement statement =DBConn.prepareStatement(SQL);
+        statement.setString(1,yearMonth);
+        ResultSet result = statement.executeQuery();
+        while(result.next()){
+            amount = result.getInt("amount");
+        }            
+    }
+    catch(SQLException e){
+
+          System.out.println("Error: " + e);            
+    }
+    return amount;
+}
+
+
+public static Integer assembleAppointmentsAmount(String year, String month){
+      if (month.length() == 1){
+         month = "0" + month;
+     }
+     String yearMonth = year + month;
+     Integer amount = null;
+    try{
+     
+        String SQL = "SELECT count(*) as amount FROM appointment where EXTRACT(YEAR_MONTH FROM date(start)) = ?";  
+            PreparedStatement statement =DBConn.prepareStatement(SQL);
+        statement.setString(1,yearMonth);
+        ResultSet result = statement.executeQuery();
+        while(result.next()){
+            amount = result.getInt("amount");
+        }            
+    }
+    catch(SQLException e){
+
+          System.out.println("Error: " + e);            
+    }
+    return amount;
+}
+
+public static ObservableList assembleAppointmentsPerCustomer(Integer custID){
+
+    ObservableList aptData = FXCollections.observableArrayList();
+    try{
+ 
+            System.out.println("Entering week filter!");
+        String SQL = "SELECT * "
+                + "FROM appointment where customerId = ? Order By appointmentId";  
+            PreparedStatement statement =DBConn.prepareStatement(SQL);
+        statement.setInt (1,custID);
+        ResultSet result = statement.executeQuery();
+        while(result.next()){
+            Date currentStartDate = result.getTimestamp("start");
+            Date currentEndDate = result.getTimestamp("end");
+            LocalDate currentStartLocalDate = currentStartDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            LocalTime currentStartLocalTime = currentStartDate.toInstant().atZone(ZoneId.systemDefault()).toLocalTime();
+            LocalDate currentEndLocalDate = currentEndDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            LocalTime currentEndLocalTime = currentEndDate.toInstant().atZone(ZoneId.systemDefault()).toLocalTime();           
+            ZoneId dbZoneId = ZoneId.of("America/Chicago");
+            ZonedDateTime currentStartDateZDT = ZonedDateTime.of(currentStartLocalDate,currentStartLocalTime,dbZoneId);
+            ZonedDateTime currentEndDateZDT = ZonedDateTime.of(currentEndLocalDate,currentEndLocalTime,dbZoneId);
+            Instant currentStartDateInstant = currentStartDateZDT.toInstant();
+            Instant currentEndDateInstant = currentEndDateZDT.toInstant();
+            currentStartDateTime = currentStartDateInstant.atZone(ZoneId.of(TimeZone.getDefault().getID())); 
+            currentEndDateTime = currentEndDateInstant.atZone(ZoneId.of(TimeZone.getDefault().getID())); 
+            Appointment apt = new Appointment();
+            apt.setAppointmentID(result.getInt("appointmentId")); 
+            apt.setCustomerID(result.getInt("customerID"));
+            apt.setUserID(result.getInt("userID"));
+            apt.setAppointmentTitle(result.getString("title"));
+            apt.setAppointmentDescription(result.getString("description"));
+            apt.setAppointmentLocation(result.getString("location"));
+            apt.setAppointmentContact(result.getString("contact"));
+            apt.setAppointmentType(result.getString("type"));
+            apt.setAppointmentUrl(result.getString("url"));
+            apt.setAppointmentStart(currentDateTime);
+            apt.setAppointmentEnd(currentEndDateTime);
+            System.out.println("Appointment Data: " + apt.getAppointmentTitle().get());
+            aptData.add(apt);
+        }            
+      }
+    catch(SQLException e){
+
+          System.out.println("Error: " + e);            
+    }
+    return aptData;
+}
+
 
  public static ObservableList getYears(){
      ObservableList yearData = FXCollections.observableArrayList();
@@ -565,7 +682,40 @@ public static ObservableList assembleAppointmentsFilteredData(String year, Strin
      }
      return weeksData;
  }
+ 
+  public static ObservableList checkForAppointmentsLogin(){
+      ObservableList appointmentLogin = FXCollections.observableArrayList();
+      try{
+      String SQL = "select * from appointment where start between ? and timestampadd(MINUTE,15,?)";
+      PreparedStatement statement =DBConn.prepareStatement(SQL);
+        statement.setTimestamp(1,timestamp);
+        statement.setTimestamp(2,timestamp);
+        ResultSet result = statement.executeQuery();
+        while(result.next()){
+            appointmentLogin.add(result.getInt("appointmentId"));
+        }
+      }
+      catch(SQLException e){
+          System.out.println("Error: " + e);
+      }
+      return appointmentLogin;
+  }
   
+    public static ObservableList getCustomerName(){
+      ObservableList customerNameID = FXCollections.observableArrayList();
+      try{
+      String SQL = "select customerName,customerId from customer";
+      PreparedStatement statement =DBConn.prepareStatement(SQL);
+        ResultSet result = statement.executeQuery();
+        while(result.next()){
+            customerNameID.add(Integer.toString(result.getInt("customerId")) +"-"+ result.getString("customerName"));
+        }
+      }
+      catch(SQLException e){
+          System.out.println("Error: " + e);
+      }
+      return customerNameID;
+  }
 
  
  

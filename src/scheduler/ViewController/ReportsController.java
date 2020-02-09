@@ -29,6 +29,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
+import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -43,10 +44,12 @@ import scheduler.Model.User;
  *
  * @author flavius8
  */
-public class AppointmentsController implements Initializable {
+public class ReportsController implements Initializable {
     User currentUser;
     String year;
     String month;
+    String yearType;
+    String monthType;
     String week;
     private ObservableList<Appointment> appointmentData = FXCollections.observableArrayList();
     @FXML
@@ -74,14 +77,6 @@ public class AppointmentsController implements Initializable {
     @FXML
     private TableColumn<Appointment, Timestamp> appointmentEnd;
     @FXML
-    private TableColumn<Appointment, Timestamp> appointmentCreateDate;
-    @FXML
-    private TableColumn<Appointment, String> appointmentCreatedBy;
-    @FXML
-    private TableColumn<Appointment, Timestamp> appointmentLastUpdate;
-    @FXML
-    private TableColumn<Appointment, String> appointmentLastUpdateBy;
-    @FXML
     Pane addAppointmentPane;
     @FXML
     TextField custID;
@@ -100,20 +95,20 @@ public class AppointmentsController implements Initializable {
     @FXML
     DatePicker start;
     @FXML
-    private ComboBox<String> pickHour;
+    private ComboBox<String> pickYearType;
     @FXML
-    private ComboBox<String> pickMin;
-    @FXML
-    private ComboBox<String> pickLength;
+    private ComboBox<String> pickMonthType;
     @FXML
     private ComboBox<String> pickYear;
     @FXML
-    private ComboBox<String> pickWeek;
-    @FXML
     private ComboBox<String> pickMonth;    
-    ObservableList<String> hours = FXCollections.observableArrayList();
-    ObservableList<String> minutes = FXCollections.observableArrayList();
-    ObservableList<String> length = FXCollections.observableArrayList();
+    @FXML
+    private ComboBox<String> customerSchedID;        
+    @FXML
+    private Label appointmentAmountLabel;
+    @FXML
+    private Label appointmentTypeLabel;
+
     boolean addDisabled = true;
     boolean addVisible = false;
     Integer apptLength;
@@ -149,60 +144,10 @@ public class AppointmentsController implements Initializable {
        type.setText("");
        url.setText("");
        start.setValue(null);
-        pickHour.getSelectionModel().clearSelection();
-        pickHour.setValue(null);
-        pickHour.setItems(null);
-        pickMin.getSelectionModel().clearSelection();
-        pickMin.setValue(null);
-        pickMin.setItems(null);
-        pickLength.getSelectionModel().clearSelection();
-        pickLength.setValue(null);
-        pickLength.setItems(null);
+
     }
     
-    @FXML
-    public void handleAddApointmentSaveButton(ActionEvent e){
-     try{
-     LocalDate startDate = start.getValue();
-     String hour = pickHour.getValue();
-     String minute = pickMin.getValue();
-     apptLength = Integer.parseInt(pickLength.getValue());
-     LocalDateTime startDateTime = LocalDateTime.of(startDate.getYear(), startDate.getMonthValue(), startDate.getDayOfMonth(), Integer.parseInt(hour), Integer.parseInt(minute));
-
-      LocalTime currentLocalTime = startDateTime.toLocalTime();
-      ZoneId dbZoneId = ZoneId.of("America/Chicago");
-      ZonedDateTime currentDateZDT = ZonedDateTime.of(startDate,currentLocalTime,ZoneId.of(TimeZone.getDefault().getID()));
-      Instant currentDateInstant = currentDateZDT.toInstant();
-      ZonedDateTime currentDateTime = currentDateInstant.atZone(dbZoneId); 
-        System.out.println("The start date/time is: " + startDateTime + " and will last: " + apptLength);
-     addAppointment(Integer.parseInt(custID.getText()),currentUser.getUserId().get(),title.getText(),description.getText(),location.getText(),
-             contact.getText(),type.getText(),url.getText(),currentDateTime,apptLength,currentUser.getUsername().get());
-     appointmentTable.setItems(assembleAppointmentsData());
-            custID.setText("");
-       title.setText("");
-       description.setText("");
-       location.setText("");
-       contact.setText("");
-       type.setText("");
-       url.setText("");
-        start.setValue(null);
-        pickHour.getSelectionModel().clearSelection();
-        pickHour.setValue(null);
-        pickMin.getSelectionModel().clearSelection();
-        pickMin.setValue(null);
-        pickLength.getSelectionModel().clearSelection();
-        pickLength.setValue(null);
-     }
-     catch(Exception ex){
-            System.out.println("Error: " + ex);
-            ResourceBundle rb = ResourceBundle.getBundle("language/rb");
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle(rb.getString("sqltitle"));
-            alert.setHeaderText(rb.getString("header"));
-            alert.setContentText(rb.getString("sqlcontent"));
-            alert.showAndWait(); 
-     }
-    }
+   
 
     @FXML
     public void handleDeleteAppointmentButton(ActionEvent e){
@@ -262,34 +207,50 @@ public class AppointmentsController implements Initializable {
        }
     }
     
-    @FXML void handleMonthSelect (ActionEvent e){
-               if (pickYear.getValue() == null){
+
+        @FXML
+    public void handleYearSelectType(ActionEvent e){
+       if (pickYearType.getValue() == null){
           return;
        }else{
-        month = pickMonth.getValue();
-        pickWeek.setItems(getWeeks(pickYear.getValue(),month));
-               }
+       yearType = pickYearType.getValue();       
+       pickMonthType.setItems(getMonths(yearType));
+       }
     }
-    @FXML void handleFilterAppointments(ActionEvent e){
-  
-        week = pickWeek.getValue();
-        System.out.println("Week value: " + week);
-        appointmentTable.setItems(assembleAppointmentsFilteredData(year,month,week));
-         pickYear.getSelectionModel().clearSelection();
-        pickWeek.getSelectionModel().clearSelection();
-        pickWeek.setValue(null);
-        pickWeek.setItems(null);
+    @FXML void handleFilterAppointmentsType(ActionEvent e){       
+        monthType = pickMonthType.getValue();
+        appointmentTypeLabel.setVisible(true);
+        appointmentTypeLabel.setText(Integer.toString(assembleAppointmentsType(yearType, monthType)));
+        pickYearType.getSelectionModel().clearSelection();
+        pickMonthType.getSelectionModel().clearSelection();
+        pickMonthType.setValue(null);
+        pickMonthType.setItems(null);
+
+    }
+        @FXML void handleFilterAppointmentsAmount(ActionEvent e){
+        
+        month= pickMonth.getValue();
+        appointmentAmountLabel.setVisible(true);        
+        appointmentAmountLabel.setText(Integer.toString(assembleAppointmentsAmount(yearType, monthType)));
+        pickYear.getSelectionModel().clearSelection();
         pickMonth.getSelectionModel().clearSelection();
         pickMonth.setValue(null);
         pickMonth.setItems(null);
 
     }
+        
+    
+     @FXML void handleGetCustomerSchedule(ActionEvent e){
+        Integer selectedCustomerID = Integer.parseInt(customerSchedID.getValue().substring(0, 1));
+        appointmentTable.setItems(assembleAppointmentsPerCustomer(selectedCustomerID));
+  }
+    
     
 
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        //These lambda expressions allow me to directly call getter functions from the Appointment class making the code more readable and more efficient.
+        //These lambda expressions allow me to directly call getter functions from the class making the code more readable and more efficient.
         appointmentID.setCellValueFactory(cellData -> cellData.getValue().getAppointmentId().asObject());
         customerID.setCellValueFactory(cellData -> cellData.getValue().getCustomerID().asObject());      
         userID.setCellValueFactory(cellData -> cellData.getValue().getUserID().asObject());
@@ -301,19 +262,11 @@ public class AppointmentsController implements Initializable {
         appointmentURL.setCellValueFactory(cellData -> cellData.getValue().getAppointmentUrl());
         appointmentStart.setCellValueFactory(cellData -> cellData.getValue().getAppointmentStart());
         appointmentEnd.setCellValueFactory(cellData -> cellData.getValue().getAppointmentEnd());
-        appointmentCreateDate.setCellValueFactory(cellData -> cellData.getValue().getAppointmentCreateDate());
-        appointmentCreatedBy.setCellValueFactory(cellData -> cellData.getValue().getAppointmentCreatedBy());
-        appointmentLastUpdate.setCellValueFactory(cellData -> cellData.getValue().getAppointmentLastUpdate());
-        appointmentLastUpdateBy.setCellValueFactory(cellData -> cellData.getValue().getAppointmentLastUpdatedBy());
         appointmentTable.setItems(assembleAppointmentsData());
         System.out.println("Appointment Table Contents: " + appointmentTable.getItems());
-        hours.addAll("08", "09", "10", "11", "12", "13", "14", "15", "16", "17");
-        minutes.addAll("00", "15", "30", "45");
-        length.addAll("15", "30", "45","60");
-        pickHour.setItems(hours);
-        pickMin.setItems(minutes);
-        pickLength.setItems(length);
+        customerSchedID.setItems(getCustomerName());
         pickYear.setItems(getYears());
+        pickYearType.setItems(getYears());
     }   
     
     public void setCurrentUser(User passCurrentUser){

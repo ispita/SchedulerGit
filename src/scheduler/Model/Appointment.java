@@ -32,7 +32,7 @@ public class Appointment {
     private StringProperty appointmentType;
     private StringProperty appointmentUrl;
     private ObjectProperty<ZonedDateTime> appointmentStart; 
-    private ObjectProperty<Timestamp> appointmentEnd; 
+    private ObjectProperty<ZonedDateTime> appointmentEnd; 
     private ObjectProperty<Timestamp> appointmentCreateDate; 
     private StringProperty appointmentCreatedBy;
     private ObjectProperty<Timestamp> appointmentLastUpdate;
@@ -133,7 +133,7 @@ public class Appointment {
     public void setAppointmentStart(ZonedDateTime Start){
         this.appointmentStart.set(Start);
     }
-    public void setAppointmentEnd(Timestamp End){
+    public void setAppointmentEnd(ZonedDateTime End){
         this.appointmentEnd.set(End);
     }
     public void setAppointmentCreateDate(Timestamp CreateDate){

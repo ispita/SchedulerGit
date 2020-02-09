@@ -26,6 +26,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.TextField;
@@ -127,6 +128,7 @@ User currentUser;
     
     
     public void setAppointment(Appointment selectedAppointment, User passCurrentUser){
+
         this.modifiedAppointment = selectedAppointment;
          this.currentUser = passCurrentUser;
        custID.setText(Integer.toString(modifiedAppointment.getCustomerID().get()));
@@ -149,7 +151,7 @@ User currentUser;
        pickMin.setValue(Integer.toString(apptStart.toLocalTime().getMinute()));
        pickHour.setValue(Integer.toString(apptStart.toLocalTime().getHour()));
        pickLength.setValue(appointmentTimes.get(1).toString());
-       
+
        
     }
     
