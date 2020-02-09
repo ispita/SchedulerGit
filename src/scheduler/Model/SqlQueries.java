@@ -101,9 +101,16 @@ public static void addAppointment(Integer custID, Integer userID, String title,S
         String location, String contact, String type, String url, ZonedDateTime start, Integer end,String userName){
     LocalDateTime startLDT = start.toLocalDateTime();
     Timestamp startTimestamp = Timestamp.valueOf(startLDT);
-    System.out.println("DateTime: " + currentDateTime);
-    System.out.println("Timestamp: " + timestamp);
     try{
+        String SQLa = "select * from appointment where start not in "
+                + "(select start from appointment where ? not between start and end)"
+                + " or end not in (select end from appointment where TIMESTAMPADD(MINUTE,?,?) not between start and end )";
+        PreparedStatement statementa =DBConn.prepareStatement(SQLa);
+        statementa.setTimestamp(1, startTimestamp);
+        statementa.setInt(2, end);
+        statementa.setTimestamp(3, startTimestamp);
+        ResultSet result = statementa.executeQuery();
+        if (!result.isBeforeFirst()){
         String SQL = "INSERT INTO appointment (customerId,userId,title,description,location,contact,type,url,start,end,createDate,createdBy,lastUpdateBy) "
                 + "VALUES (?,?,?,?,?,?,?,?,?,TIMESTAMPADD(MINUTE,?,?),?,?,?)";
         PreparedStatement statement =DBConn.prepareStatement(SQL);
@@ -122,6 +129,15 @@ public static void addAppointment(Integer custID, Integer userID, String title,S
         statement.setString(13, userName);
         statement.setString(14, userName);
         statement.executeUpdate();
+        }
+        else{
+            ResourceBundle rb = ResourceBundle.getBundle("language/rb");
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle(rb.getString("sqltitle"));
+            alert.setHeaderText(rb.getString("header"));
+            alert.setContentText(rb.getString("sqlcontent"));
+            alert.showAndWait();   
+        }
     }
     catch(SQLException e){
         System.out.println("Error: " + e);
@@ -234,10 +250,23 @@ public static void deleteAppointment(Integer aptID){
 }
 
 public static void modifyAppointment(Integer aptID, Integer custID, Integer userID, String title,String description,
-        String location, String contact, String type, String url, Timestamp start, Timestamp end,String userName){
+        String location, String contact, String type, String url, ZonedDateTime start, Integer end,String userName){
+        LocalDateTime startLDT = start.toLocalDateTime();
+        Timestamp startTimestamp = Timestamp.valueOf(startLDT);
         try{
+            
+        String SQLa = "select * from appointment where appointmentId != ? and (start not in "
+                + "(select start from appointment where ? not between start and end)"
+                + " or end not in (select end from appointment where TIMESTAMPADD(MINUTE,?,?) not between start and end ))";
+        PreparedStatement statementa =DBConn.prepareStatement(SQLa);
+        statementa.setInt(1,aptID);
+        statementa.setTimestamp(2, startTimestamp);
+        statementa.setInt(3, end);
+        statementa.setTimestamp(4, startTimestamp);
+        ResultSet result = statementa.executeQuery();
+         if (!result.isBeforeFirst()){       
         String SQL = "UPDATE appointment set customerId = ?, userId = ?, title = ?, description = ?, location = ?, contact = ? , type = ?, url = ?,"
-                + " start = ?, end = ?,lastUpdateBy = ? WHERE appointmentId = ?";
+                + " start = ?, end = TIMESTAMPADD(MINUTE,?,?),lastUpdateBy = ? WHERE appointmentId = ?";
         PreparedStatement statement =DBConn.prepareStatement(SQL);
         statement.setInt(1,custID);
         statement.setInt(2,userID);
@@ -247,11 +276,21 @@ public static void modifyAppointment(Integer aptID, Integer custID, Integer user
         statement.setString(6, contact);
         statement.setString(7, type);
         statement.setString(8, url);
-        statement.setTimestamp(9, start);
-        statement.setTimestamp(10, end);
-        statement.setString(11, userName);
-        statement.setInt(12, aptID);
+        statement.setTimestamp(9, startTimestamp);
+        statement.setInt(10, end);
+        statement.setTimestamp(11, startTimestamp);
+        statement.setString(12, userName);
+        statement.setInt(13, aptID);
         statement.executeUpdate();
+         }
+         else{
+            ResourceBundle rb = ResourceBundle.getBundle("language/rb");
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle(rb.getString("sqltitle"));
+            alert.setHeaderText(rb.getString("header"));
+            alert.setContentText(rb.getString("sqlcontent"));
+            alert.showAndWait();   
+         }
     }
     catch(SQLException e){
         System.out.println("Error: " + e);
@@ -302,13 +341,13 @@ public static void modifyCustomer(Integer custID, String custName, Integer custA
 public static ObservableList getStartEndTimesAppointment(Integer aptID){
     ObservableList appointmentTimes = FXCollections.observableArrayList();
         try{
-    String SQL = "SELECT start,end from appointment where appointmentId = ?";
+    String SQL = "SELECT start,TIMESTAMPDIFF(MINUTE,start,end) as apptLength from appointment where appointmentId = ?";
     PreparedStatement statement =DBConn.prepareStatement(SQL);
     statement.setInt(1,aptID);
     ResultSet result = statement.executeQuery();
     while(result.next()){
         appointmentTimes.add(result.getTimestamp("start"));
-        appointmentTimes.add(result.getTimestamp("end"));
+        appointmentTimes.add(result.getInt("apptLength"));
     }
     }
     catch(SQLException e){

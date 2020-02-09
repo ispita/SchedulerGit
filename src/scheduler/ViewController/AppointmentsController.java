@@ -26,6 +26,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.TableColumn;
@@ -153,6 +154,7 @@ public class AppointmentsController implements Initializable {
     
     @FXML
     public void handleAddApointmentSaveButton(ActionEvent e){
+     try{
      LocalDate startDate = start.getValue();
      String hour = pickHour.getValue();
      String minute = pickMin.getValue();
@@ -168,6 +170,16 @@ public class AppointmentsController implements Initializable {
      addAppointment(Integer.parseInt(custID.getText()),currentUser.getUserId().get(),title.getText(),description.getText(),location.getText(),
              contact.getText(),type.getText(),url.getText(),currentDateTime,apptLength,currentUser.getUsername().get());
      appointmentTable.setItems(assembleAppointmentsData());
+     }
+     catch(Exception ex){
+            System.out.println("Error: " + ex);
+            ResourceBundle rb = ResourceBundle.getBundle("language/rb");
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle(rb.getString("sqltitle"));
+            alert.setHeaderText(rb.getString("header"));
+            alert.setContentText(rb.getString("sqlcontent"));
+            alert.showAndWait(); 
+     }
     }
 
     @FXML
@@ -245,6 +257,7 @@ public class AppointmentsController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        //These lambda expressions allow me to directly call getter functions from the class making the code more readable and more efficient.
         appointmentID.setCellValueFactory(cellData -> cellData.getValue().getAppointmentId().asObject());
         customerID.setCellValueFactory(cellData -> cellData.getValue().getCustomerID().asObject());      
         userID.setCellValueFactory(cellData -> cellData.getValue().getUserID().asObject());
